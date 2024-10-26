@@ -7,7 +7,7 @@ content = """
 This API provides access to the e-commerce platform, allowing you to manage products, orders, carts, users, and more. It supports common operations such as listing, retrieving, creating, updating, and deleting resources.
 
 ### Base URL:  
-`https://<your-domain>/api/`
+`https://http://localhost:8000/api/`
 
 ---
 
