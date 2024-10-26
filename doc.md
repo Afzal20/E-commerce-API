@@ -1,6 +1,3 @@
-# Saving the content to a .md file as requested by the user
-
-content = """
 # E-commerce API Documentation
 
 ## Overview
