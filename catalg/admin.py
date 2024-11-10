@@ -6,6 +6,9 @@ from .models import (
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 
+admin.site.site_header = 'Freelancing Platform Admin Panel'
+admin.site.index_title = 'Freelancing Platform Admin Panel'
+
 # Inline Admin Models
 class ItemImageInline(admin.TabularInline):
     model = ItemImage
