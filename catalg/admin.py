@@ -6,8 +6,8 @@ from .models import (
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 
-admin.site.site_header = 'Freelancing Platform Admin Panel'
-admin.site.index_title = 'Freelancing Platform Admin Panel'
+admin.site.site_header = 'Wellcome to Bindu-Britto Admin Panel'
+admin.site.index_title = 'Bindu-Britto Admin Panel'
 
 # Inline Admin Models
 class ItemImageInline(admin.TabularInline):

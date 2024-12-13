@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     # my apps
-    'catalg',
     'users',
+    'catalg',
 ]
 
 MIDDLEWARE = [

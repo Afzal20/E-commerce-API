@@ -1,5 +1,10 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.db import models
+from django.contrib.auth import get_user_model
+
+
+def get_first_user():
+    return get_user_model().objects.first()  # This fetches the first user or None if no users exist
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -53,7 +58,7 @@ class CustomUser(AbstractUser):
 
 
 class Profil(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, default=get_first_user)
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     description = models.TextField(default='Description')
     address = models.CharField(max_length=254, default='Address')
