@@ -6,13 +6,8 @@ from .models import (
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 
-<<<<<<< HEAD
 admin.site.site_header = 'Wellcome to Bindu-Britto Admin Panel'
 admin.site.index_title = 'Bindu-Britto Admin Panel'
-=======
-admin.site.site_header = 'Bindu-Britto'
-admin.site.index_title = 'Bindu-britto'
->>>>>>> master
 
 # Inline Admin Models
 class ItemImageInline(admin.TabularInline):
