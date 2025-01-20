@@ -32,7 +32,6 @@ router.register(r'refunds', RefundViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('items/<str:product_id>/', get_item_by_product_id, name='item-by-product-id'),
-    path('users/', include('users.urls'))
 ]
 
 
