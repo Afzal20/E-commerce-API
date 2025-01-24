@@ -5,26 +5,25 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
+
 class CustomUserManager(BaseUserManager):
     def email_validation(self, email):
         try:
             validate_email(email)
         except ValidationError:
             raise ValueError(_("You must provide a valid email"))
-    
-    def create_user(self, email, first_name, last_name=None, password=None, **extra_fields):
+
+    def create_user(self, email, first_name=None, last_name=None, password=None, **extra_fields):
         if not email:
-            raise ValueError(_("This is required field"))
+            raise ValueError(_("The Email field is required"))
         else:
             self.email_validation(email)
             clean_email = self.normalize_email(email)
-        if not first_name:
-            raise ValueError(_("This is required field"))
-        
+
         user = self.model(
-            email = clean_email,
-            first_name = first_name,
-            last_name = last_name,
+            email=clean_email,
+            first_name=first_name,
+            last_name=last_name,
             **extra_fields
         )
         user.set_password(password)
@@ -32,31 +31,35 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", False)
         user.save()
         return user
-    
-    def create_superuser(self, email, first_name, last_name=None, password=None, **extra_fields):
+
+    def create_superuser(self, email, first_name=None, last_name=None, password=None, **extra_fields):
         extra_fields.setdefault("is_active", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_staff", True)
 
         if not email:
-            raise ValueError(_("This is required field"))
+            raise ValueError(_("The Email field is required"))
         else:
             self.email_validation(email)
             clean_email = self.normalize_email(email)
-        if not first_name:
-            raise ValueError(_("This is required field"))
+
         if extra_fields.get("is_superuser") is not True:
-            raise ValueError(_("Superuser must have True value in is_superuser field"))
+            raise ValueError(_("Superuser must have is_superuser=True"))
         if extra_fields.get("is_staff") is not True:
-            raise ValueError(_("Superuser must have True value in is_staff field"))
-        
+            raise ValueError(_("Superuser must have is_staff=True"))
+
+        # Default value for first_name if not provided
+        if not first_name:
+            first_name = "Admin"
+
         user = self.create_user(clean_email, first_name, last_name, password, **extra_fields)
         user.save()
         return user
 
+
 class CustomUserModel(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("Email Address"), unique=True, max_length=255)
-    first_name = models.CharField(_("First Name"), max_length=100)
+    first_name = models.CharField(_("First Name"), max_length=100, null=True, blank=True)
     last_name = models.CharField(_("Last Name"), max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -64,7 +67,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['first_name']
+    REQUIRED_FIELDS = []  # No additional fields are required for createsuperuser
 
     objects = CustomUserManager()
 
