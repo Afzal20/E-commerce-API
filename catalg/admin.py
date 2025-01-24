@@ -76,7 +76,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'billing_address__street_address']
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ['user_name', 'item', 'item_color_code', 'item_size', 'quantity', 'ordered', 'applied_coupon']
+    list_display = ['user_name', 'item', 'item_color_code', 'item_size', 'quantity', 'ordered', 'delivered', 'applied_coupon']
     search_fields = ['user_name__username', 'item__title']
     list_filter = ['ordered', 'delivered', 'applied_coupon']
 
