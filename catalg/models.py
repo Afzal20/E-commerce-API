@@ -61,7 +61,7 @@ class Item(models.Model):
     colors = models.ManyToManyField(Color, through='ItemColor')
 
     def __str__(self):
-        return self.title
+        return self.product_id                     
 
     def get_add_to_url(self):
         return reverse('add_to_cart', kwargs={'product_id': self.product_id})
@@ -183,4 +183,4 @@ class Cart(models.Model):
         unique_together = ('user_name', 'item', 'ordered', 'item_size', 'item_color_code')
 
     def __str__(self):
-        return f"{self.quantity} of {self.product_Id}"
+        return f"{self.quantity} of {self.item.product_id} )"

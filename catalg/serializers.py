@@ -118,12 +118,7 @@ class CartSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Cart
-        fields = [
-            'id', 'user_name', 'item', 'item_color_code', 'item_size', 'ordered',
-            'delivered', 'user_First_Name', 'product_Id', 'order_time',
-            'last_time_to_delivery', 'quantity', 'order_status', 'applied_coupon'
-        ]
-
+        fields = '__all__'
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slider
