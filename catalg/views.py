@@ -1,9 +1,9 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.views import APIView
 from .models import (
     Districts, Category, ItemType, Size, Rating, Color,
     Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
@@ -64,10 +64,15 @@ class ItemColorViewSet(viewsets.ModelViewSet):
     serializer_class = ItemColorSerializer
 
 class CartViewSet(viewsets.ModelViewSet):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
+    # def post(self, request):
+    #     product_id = request.data.get('product_id')
+    #     product_obj = Item.objects.get(product_id=product_id)
+    #     cart_item = Cart.objects.create(product=product_obj, user=request.user)
 
 class OrderItemsViewSet(viewsets.ModelViewSet):
     queryset = OrderItems.objects.all()
@@ -112,3 +117,41 @@ def get_item_by_product_id(request, product_id):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AddToCartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Get product ID and quantity from the request data
+            product_id = request.data.get('product_id')
+            quantity = request.data.get('quantity', 1)  # Default quantity is 1
+
+            # Fetch the item
+            item = Item.objects.filter(product_id=product_id).first()
+
+            if not item:
+                return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Check if the item already exists in the cart for this user
+            cart_item, created = Cart.objects.get_or_create(
+                user=request.user, 
+                item=item, 
+                ordered=False
+            )
+
+            if not created:
+                # If the item is already in the cart, update the quantity
+                cart_item.quantity += int(quantity)
+                cart_item.save()
+
+            return Response(
+                {
+                    "message": "Item added to cart successfully",
+                    "cart": CartSerializer(cart_item).data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -155,32 +155,30 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
-
-class OrderItems(models.Model):
-    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
-    item_size = models.CharField(max_length=10)
-    item_color_code = models.CharField(max_length=100)
-    quantity = models.IntegerField(default=1)
-    order_status = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.quantity} of {self.item.title} (Order: {self.order.id})"
-
-
+   
 class Cart(models.Model):
-    user_name = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
-    item_color_code = models.CharField(max_length=100)
-    item_size = models.CharField(max_length=10)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     ordered = models.BooleanField(default=False)
-    delivered = models.BooleanField(default=False)
-    order_status = models.BooleanField(default=False)
-    applied_coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
-
-    class Meta:
-        unique_together = ('user_name', 'item', 'ordered', 'item_size', 'item_color_code')
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.quantity} of {self.item.product_id} )"
+        return f"{self.quantity} of {self.item.title} for {self.user.username}"
+    
+    def get_total_discount_price(self):
+        return self.quantity * self.item.discount_price
+    
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    ordered = models.BooleanField(default=False)
+    subtotal = models.FloatField()
+    
+    def __str__(self):
+        return f"{self.quantity} of {self.item.title} for {self.cart.user.username}"
+    
+    def get_total_discount_price(self):
+        return self.quantity * self.item.discount_price
+
