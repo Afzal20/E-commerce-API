@@ -20,6 +20,10 @@ class CustomUserManager(BaseUserManager):
             self.email_validation(email)
             clean_email = self.normalize_email(email)
 
+        # Check for existing email
+        if self.model.objects.filter(email=clean_email).exists():
+            raise ValueError(_("A user with this email already exists"))
+
         user = self.model(
             email=clean_email,
             first_name=first_name,
@@ -31,6 +35,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", False)
         user.save()
         return user
+
 
     def create_superuser(self, email, first_name=None, last_name=None, password=None, **extra_fields):
         extra_fields.setdefault("is_active", True)
@@ -65,6 +70,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
+    verified = models.BooleanField(default=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []  # No additional fields are required for createsuperuser

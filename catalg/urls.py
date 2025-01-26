@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    AddToCartView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet,
+    DistrictsViewSet, CategoryViewSet, ItemTypeViewSet,
     SizeViewSet, RatingViewSet, ColorViewSet, ItemViewSet, ItemImageViewSet,
     ItemSizeViewSet, ItemColorViewSet, CartViewSet, OrderItemsViewSet, 
     OrderViewSet, SliderViewSet, BillingAddressViewSet, PaymentViewSet,
@@ -32,7 +32,6 @@ router.register(r'refunds', RefundViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('items/<str:product_id>/', get_item_by_product_id, name='item-by-product-id'),
-     path('cart/add/', AddToCartView.as_view(), name='add-to-cart'),
 ]
 
 

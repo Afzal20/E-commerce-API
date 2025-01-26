@@ -112,7 +112,14 @@ class OrderSerializer(serializers.ModelSerializer):
             'coupon', 'being_delivered', 'received', 'refund_requested', 'refund_granted'
         ]
 
-
+class CartSerializer(serializers.ModelSerializer):
+    item = ItemSerializer()
+    applied_coupon = CouponSerializer()
+    
+    class Meta:
+        model = Cart
+        fields = '__all__'
+        
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slider
@@ -136,25 +143,3 @@ class AdminPaymentSerializer(PaymentSerializer):
 class AdminCouponSerializer(CouponSerializer):
     class Meta(CouponSerializer.Meta):
         fields = CouponSerializer.Meta.fields
-
-
-from rest_framework import serializers
-from .models import Cart
-
-class CartSerializer(serializers.ModelSerializer):
-    item_name = serializers.ReadOnlyField(source="item.name")
-    coupon_code = serializers.ReadOnlyField(source="applied_coupon.code")
-
-    class Meta:
-        model = Cart
-        fields = [
-            "id",
-            "item_name",
-            "item_color_code",
-            "item_size",
-            "quantity",
-            "ordered",
-            "delivered",
-            "order_status",
-            "coupon_code",
-        ]
