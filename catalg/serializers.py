@@ -113,12 +113,12 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
 class CartSerializer(serializers.ModelSerializer):
-    item = ItemSerializer()
-    applied_coupon = CouponSerializer()
-    
+    # Use primary key for 'item' since frontend sends product_id
+    item = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all())
+
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = ['id', 'item', 'quantity', 'item_color_code', 'item_size', 'applied_coupon', 'ordered', 'delivered', 'order_status']
         
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:

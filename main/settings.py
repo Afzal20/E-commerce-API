@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+from decouple import config
+
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -138,6 +140,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 # Allow all origins (only for development; not for production)
@@ -145,7 +148,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_URLS_REGEX = r'^/.*$'  # Allow CORS for all URLs
 
-from decouple import config
+
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server

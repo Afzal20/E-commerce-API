@@ -62,17 +62,15 @@ class ItemSizeViewSet(viewsets.ModelViewSet):
 class ItemColorViewSet(viewsets.ModelViewSet):
     queryset = ItemColor.objects.all()
     serializer_class = ItemColorSerializer
-
 class CartViewSet(viewsets.ModelViewSet):
     # authentication_classes = [TokenAuthentication]
     # permission_classes = [IsAuthenticated]
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
-    # def post(self, request):
-    #     product_id = request.data.get('product_id')
-    #     product_obj = Item.objects.get(product_id=product_id)
-    #     cart_item = Cart.objects.create(product=product_obj, user=request.user)
+    def perform_create(self, serializer):
+        # Associate the cart entry with the authenticated user
+        serializer.save(user_name=self.request.user)
 
 class OrderItemsViewSet(viewsets.ModelViewSet):
     queryset = OrderItems.objects.all()
