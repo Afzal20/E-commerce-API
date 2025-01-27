@@ -4,13 +4,18 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, DestroyAPIView
+from .models import Cart
+from .serializers import CartSerializer, AddToCartSerializer
 from .models import (
     Districts, Category, ItemType, Size, Rating, Color,
     Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 from .serializers import (
-    DistrictsSerializer, CategorySerializer, ItemTypeSerializer,
+    AddToCartSerializer, DistrictsSerializer, CategorySerializer, ItemTypeSerializer,
     SizeSerializer, RatingSerializer, ColorSerializer, ItemSerializer,
     ItemImageSerializer, ItemSizeSerializer, ItemColorSerializer, CartSerializer,
     OrderSerializer, OrderItemsSerializer, SliderSerializer, BillingAddressSerializer,
@@ -61,17 +66,7 @@ class ItemSizeViewSet(viewsets.ModelViewSet):
 
 class ItemColorViewSet(viewsets.ModelViewSet):
     queryset = ItemColor.objects.all()
-    serializer_class = ItemColorSerializer
-class CartViewSet(viewsets.ModelViewSet):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
-
-    def perform_create(self, serializer):
-        # Associate the cart entry with the authenticated user
-        serializer.save(user_name=self.request.user)
-
+    serializer_class = ItemColorSerializer 
 class OrderItemsViewSet(viewsets.ModelViewSet):
     queryset = OrderItems.objects.all()
     serializer_class = OrderItemsSerializer
@@ -115,3 +110,26 @@ def get_item_by_product_id(request, product_id):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AddToCartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = AddToCartSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CartListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CartSerializer
+
+    def get_queryset(self):
+        return Cart.objects.filter(user_name=self.request.user, ordered=False)
+
+class RemoveFromCartView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Cart.objects.filter(user_name=self.request.user, ordered=False)

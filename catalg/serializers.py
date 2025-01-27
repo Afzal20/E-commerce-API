@@ -112,14 +112,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'coupon', 'being_delivered', 'received', 'refund_requested', 'refund_granted'
         ]
 
-class CartSerializer(serializers.ModelSerializer):
-    # Use primary key for 'item' since frontend sends product_id
-    item = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all())
-
-    class Meta:
-        model = Cart
-        fields = ['id', 'item', 'quantity', 'item_color_code', 'item_size', 'applied_coupon', 'ordered', 'delivered', 'order_status']
-        
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slider
@@ -143,3 +135,38 @@ class AdminPaymentSerializer(PaymentSerializer):
 class AdminCouponSerializer(CouponSerializer):
     class Meta(CouponSerializer.Meta):
         fields = CouponSerializer.Meta.fields
+
+# from rest_framework import serializers
+# from .models import Cart
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = '__all__'
+        read_only_fields = ['ordered', 'delivered', 'order_status']
+
+class AddToCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['item', 'item_color_code', 'item_size', 'quantity', 'applied_coupon']
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        item = attrs.get('item')
+        item_color_code = attrs.get('item_color_code')
+        item_size = attrs.get('item_size')
+
+        # Check if the same item already exists in the cart
+        if Cart.objects.filter(
+            user_name=user, 
+            item=item, 
+            item_color_code=item_color_code, 
+            item_size=item_size, 
+            ordered=False
+        ).exists():
+            raise serializers.ValidationError("This item is already in your cart.")
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['user_name'] = self.context['request'].user
+        return super().create(validated_data)

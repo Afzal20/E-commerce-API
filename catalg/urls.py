@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    DistrictsViewSet, CategoryViewSet, ItemTypeViewSet,
+    AddToCartView, CartListView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet, RemoveFromCartView,
     SizeViewSet, RatingViewSet, ColorViewSet, ItemViewSet, ItemImageViewSet,
-    ItemSizeViewSet, ItemColorViewSet, CartViewSet, OrderItemsViewSet, 
+    ItemSizeViewSet, ItemColorViewSet, OrderItemsViewSet, 
     OrderViewSet, SliderViewSet, BillingAddressViewSet, PaymentViewSet,
     CouponViewSet, RefundViewSet, get_item_by_product_id
 )
@@ -19,7 +19,7 @@ router.register(r'items', ItemViewSet)
 router.register(r'item-images', ItemImageViewSet)
 router.register(r'item-sizes', ItemSizeViewSet)
 router.register(r'item-colors', ItemColorViewSet)
-router.register(r'carts', CartViewSet)
+# router.register(r'carts', CartViewSet)
 router.register(r'order-items', OrderItemsViewSet)
 router.register(r'orders', OrderViewSet)
 router.register(r'sliders', SliderViewSet)
@@ -34,4 +34,8 @@ urlpatterns = [
     path('items/<str:product_id>/', get_item_by_product_id, name='item-by-product-id'),
 ]
 
-
+urlpatterns += [
+    path('cart/', CartListView.as_view(), name='cart-list'),
+    path('cart/add/', AddToCartView.as_view(), name='add-to-cart'),
+    path('cart/remove/<int:pk>/', RemoveFromCartView.as_view(), name='remove-from-cart'),
+]
