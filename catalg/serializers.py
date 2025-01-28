@@ -153,20 +153,29 @@ class AddToCartSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = self.context['request'].user
         item = attrs.get('item')
-        item_color_code = attrs.get('item_color_code')
-        item_size = attrs.get('item_size')
+        quantity = attrs.get('quantity')
+
+        # Check if the item has enough stock
+        if item.number_of_items < quantity:
+            raise serializers.ValidationError(f"Not enough stock for {item.title}.")
 
         # Check if the same item already exists in the cart
         if Cart.objects.filter(
             user_name=user, 
             item=item, 
-            item_color_code=item_color_code, 
-            item_size=item_size, 
+            item_color_code=attrs.get('item_color_code'),
+            item_size=attrs.get('item_size'), 
             ordered=False
         ).exists():
             raise serializers.ValidationError("This item is already in your cart.")
+        
         return attrs
 
     def create(self, validated_data):
         validated_data['user_name'] = self.context['request'].user
         return super().create(validated_data)
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ['id', 'title', 'image', 'price', 'number_of_items', 'discount_price', 'product_id', 'brand_name', 'category', 'type', 'description', 'is_featured', 'is_bestselling']

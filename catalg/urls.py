@@ -1,11 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    AddToCartView, CartListView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet, RemoveFromCartView,
+    AddToCartView, CartListView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet, ProductDetailView, RemoveFromCartView,
     SizeViewSet, RatingViewSet, ColorViewSet, ItemViewSet, ItemImageViewSet,
     ItemSizeViewSet, ItemColorViewSet, OrderItemsViewSet, 
     OrderViewSet, SliderViewSet, BillingAddressViewSet, PaymentViewSet,
-    CouponViewSet, RefundViewSet, get_item_by_product_id
+    CouponViewSet, RefundViewSet, UpdateCartQuantityView, get_item_by_product_id
 )
 
 router = DefaultRouter()
@@ -37,5 +37,7 @@ urlpatterns = [
 urlpatterns += [
     path('cart/', CartListView.as_view(), name='cart-list'),
     path('cart/add/', AddToCartView.as_view(), name='add-to-cart'),
-    path('cart/remove/<int:pk>/', RemoveFromCartView.as_view(), name='remove-from-cart'),
+    path('cart/remove/<str:pk>/', RemoveFromCartView.as_view(), name='remove-from-cart'),
+    path('product/<int:id>/', ProductDetailView.as_view(), name='product-detail'),  
+    path('cart/update/<int:pk>/', UpdateCartQuantityView.as_view(), name='update-cart'),
 ]

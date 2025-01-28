@@ -25,41 +25,20 @@ def get_item_details(product_id):
         print("Item Details:")
         item_details = response.json()
         print(item_details)
-        return item_details[0]  
+        return item_details[0]  # Assuming the first item is the one we need
     else:
         print(f"Failed to fetch item details: {response.status_code} - {response.text}")
         return None
-
-
-def add_to_cart(item_details):
-    """Test adding an item to the cart."""
-    if not item_details:
-        print("No item details available to add to cart.")
-        return
-
-    url = f"{BASE_URL}/cart/add/"
-    payload = {
-        "item": item_details['id'],  
-        "item_color_code": item_details['item_color'][0]['color']['code'],  # First color code
-        "item_size": item_details['item_size'][0]['size']['name'],  # First size name
-        "quantity": QUANTITY,
-        "applied_coupon": None
-    }
-    response = requests.post(url, headers=HEADERS, json=payload)
-    if response.status_code == 201:
-        print("Item successfully added to cart!")
-        print(response.json())
-    else:
-        print(f"Failed to add to cart: {response.status_code} - {response.text}")
-
 
 def view_cart():
     """Fetch the cart details."""
     url = f"{BASE_URL}/cart/"
     response = requests.get(url, headers=HEADERS)
     if response.status_code == 200:
+        cart_details = response.json()
         print("Cart Details:")
-        print(response.json())
+        print(cart_details)
+        print(f"Total number of carts: {len(cart_details)}")  # Count the number of carts
     else:
         print(f"Failed to fetch cart details: {response.status_code} - {response.text}")
 
@@ -68,5 +47,4 @@ if __name__ == "__main__":
     print("Testing Add to Cart API...")
 
     item_details = get_item_details(PRODUCT_ID)
-    add_to_cart(item_details)
     view_cart()

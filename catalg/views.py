@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, DestroyAPIView
 from .models import Cart
 from .serializers import CartSerializer, AddToCartSerializer
+from rest_framework import generics
+from .serializers import ProductSerializer
 from .models import (
     Districts, Category, ItemType, Size, Rating, Color,
     Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
@@ -133,3 +135,30 @@ class RemoveFromCartView(DestroyAPIView):
 
     def get_queryset(self):
         return Cart.objects.filter(user_name=self.request.user, ordered=False)
+
+class ProductDetailView(generics.RetrieveAPIView):
+    queryset = Item.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'id'  # or 'id' if you're using id as primary key
+    
+    def get(self, request, *args, **kwargs):
+        product = self.get_object()
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
+
+
+class UpdateCartQuantityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            cart_item = Cart.objects.get(pk=pk, user_name=request.user, ordered=False)
+        except Cart.DoesNotExist:
+            return Response({"error": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)
+
+        quantity = request.data.get('quantity', None)
+        if quantity is not None and int(quantity) > 0:
+            cart_item.quantity = int(quantity)
+            cart_item.save()
+            return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid quantity"}, status=status.HTTP_400_BAD_REQUEST)

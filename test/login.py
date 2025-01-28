@@ -7,7 +7,7 @@ headers = {
 
 data = {
     "username": "",  
-    "email": "new_user@example.com", 
+    "email": "afzalhossen2019@gmail.com", 
     "password": "!@#$%^&*"  
 }
 
