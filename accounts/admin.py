@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUserModel
+from .models import CustomUserModel, UserProfile
 
 # Register your models here.
 class UserAdminCustom(UserAdmin):
@@ -34,3 +34,4 @@ class UserAdminCustom(UserAdmin):
     readonly_fields = ['date_joined', 'last_login']
 
 admin.site.register(CustomUserModel, UserAdminCustom)
+admin.site.register(UserProfile)

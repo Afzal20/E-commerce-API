@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    AddToCartView, CartListView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet, ProductDetailView, RemoveFromCartView,
+    AddToCartView, CartListView, ContactMessageCreateView, DistrictsViewSet, CategoryViewSet, ItemTypeViewSet, OrderCreateView, OrderListView, ProductDetailView, RemoveFromCartView,
     SizeViewSet, RatingViewSet, ColorViewSet, ItemViewSet, ItemImageViewSet,
-    ItemSizeViewSet, ItemColorViewSet, OrderItemsViewSet, 
+    ItemSizeViewSet, ItemColorViewSet, 
     OrderViewSet, SliderViewSet, BillingAddressViewSet, PaymentViewSet,
     CouponViewSet, RefundViewSet, UpdateCartQuantityView, get_item_by_product_id
 )
@@ -19,7 +19,6 @@ router.register(r'items', ItemViewSet)
 router.register(r'item-images', ItemImageViewSet)
 router.register(r'item-sizes', ItemSizeViewSet)
 router.register(r'item-colors', ItemColorViewSet)
-router.register(r'order-items', OrderItemsViewSet)
 router.register(r'orders', OrderViewSet)
 router.register(r'sliders', SliderViewSet)
 router.register(r'billing-addresses', BillingAddressViewSet)
@@ -39,4 +38,9 @@ urlpatterns += [
     path('cart/remove/<str:pk>/', RemoveFromCartView.as_view(), name='remove-from-cart'),
     path('product/<int:id>/', ProductDetailView.as_view(), name='product-detail'),  
     path('cart/update/<int:pk>/', UpdateCartQuantityView.as_view(), name='update-cart'),
+    
+    path('orders/', OrderListView.as_view(), name='order-list'),
+    path('orders/create/', OrderCreateView.as_view(), name='order-create'),
+    path('orders/<int:pk>/', OrderListView.as_view(), name='order-detail'),
+    path('contact/', ContactMessageCreateView.as_view(), name='contact-message'),
 ]

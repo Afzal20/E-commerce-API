@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    Districts, Category, ItemType, Size, Rating, Color,
-    Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
-    Slider, BillingAddress, Payment, Coupon, Refund
+    ContactMessage, Districts, Category, ItemType, Order, Size, Rating, Color,
+    Item, ItemImage, ItemSize, ItemColor, Cart, Slider, BillingAddress, Payment, Coupon, Refund
 )
 
 admin.site.site_header = 'Wellcome to Bindu-Britto Admin Panel'
@@ -20,10 +19,6 @@ class ItemSizeInline(admin.TabularInline):
 
 class ItemColorInline(admin.TabularInline):
     model = ItemColor
-    extra = 1
-
-class OrderItemsInline(admin.TabularInline):
-    model = OrderItems
     extra = 1
 
 class ItemAdmin(admin.ModelAdmin):
@@ -69,12 +64,6 @@ class RatingAdmin(admin.ModelAdmin):
 class ColorAdmin(admin.ModelAdmin):
     list_display = ['name', 'code']
 
-class OrderAdmin(admin.ModelAdmin):
-    inlines = [OrderItemsInline]
-    list_display = ['user', 'ordered', 'start_date', 'ordered_date', 'district', 'Address', 'Apartment', 'billing_address', 'payment', 'coupon', 'being_delivered', 'received', 'refund_requested', 'refund_granted']
-    list_filter = ['ordered', 'being_delivered', 'received', 'refund_requested', 'refund_granted']
-    search_fields = ['user__username', 'billing_address__street_address']
-
 class CartAdmin(admin.ModelAdmin):
     list_display = ['user_name', 'item', 'item_color_code', 'item_size', 'quantity', 'ordered', 'delivered', 'applied_coupon']
     search_fields = ['user_name__username', 'item__title']
@@ -114,9 +103,10 @@ admin.site.register(ItemImage)
 admin.site.register(ItemSize)
 admin.site.register(ItemColor)
 admin.site.register(Cart, CartAdmin)
-admin.site.register(Order, OrderAdmin)
 admin.site.register(Slider, SliderAdmin)
 admin.site.register(BillingAddress, BillingAddressAdmin)
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refund, RefundAdmin)
+admin.site.register(ContactMessage)
+admin.site.register(Order)

@@ -5,7 +5,11 @@ from django.utils import timezone
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
-from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import RegexValidator
+    
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Districts(models.Model):
     title = models.CharField(max_length=100, unique=True)
@@ -135,39 +139,6 @@ class Refund(models.Model):
     def __str__(self):
         return f"Refund for Order: {self.order}"
 
-
-class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    items = models.ManyToManyField('Item', through='OrderItems')
-    ordered = models.BooleanField(default=False)
-    start_date = models.DateField(auto_now_add=True)
-    ordered_date = models.DateField(blank=True, null=True)
-    district = models.ForeignKey('Districts', on_delete=models.SET_NULL, null=True)
-    Address = models.CharField(max_length=300, null=True)
-    Apartment = models.CharField(max_length=300, null=True)
-    billing_address = models.ForeignKey('BillingAddress', on_delete=models.SET_NULL, blank=True, null=True)
-    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
-    coupon = models.ForeignKey('Coupon', on_delete=models.SET_NULL, blank=True, null=True)
-    being_delivered = models.BooleanField(default=False)
-    received = models.BooleanField(default=False)
-    refund_requested = models.BooleanField(default=False)
-    refund_granted = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.user.username
-
-class OrderItems(models.Model):
-    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
-    item_size = models.CharField(max_length=10)
-    item_color_code = models.CharField(max_length=100)
-    quantity = models.IntegerField(default=1)
-    order_status = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.quantity} of {self.item.title} (Order: {self.order.id})"
-
-
 class Cart(models.Model):
     user_name = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
@@ -184,3 +155,40 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.quantity} of {self.item.product_id} )"
+
+class ContactMessage(models.Model):
+    email = models.EmailField()
+    subject = models.CharField(max_length=255)
+    details = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default="Pending", choices=[("Pending", "Pending"), ("Resolved", "Resolved")])
+
+    def __str__(self):
+        return f"Message from {self.email}"
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    product_id = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    color = models.CharField(max_length=50, blank=False, null=False)
+    size = models.CharField(max_length=50, blank=False, null=False)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=20, validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'.")])
+    district = models.CharField(max_length=100)
+    upozila = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, blank=False, null=False)
+    address = models.TextField()
+    
+    payment_method = models.CharField(max_length=50)
+    phone_number_pament = models.CharField(max_length=20, blank=False, null=False)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order {self.id} - {self.first_name} {self.last_name}"

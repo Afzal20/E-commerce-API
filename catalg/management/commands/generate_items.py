@@ -1,7 +1,15 @@
+import os
 import random
 import uuid  # For unique product_id generation
 from django.core.management.base import BaseCommand
 from catalg.models import Item, Category, ItemType, Rating, Color, ItemImage, ItemSize, Size, ItemColor
+
+# Define the image directory
+IMAGE_DIR = r"E:\react-ecommerce\src\assets\images\Products"
+
+def get_all_images():
+    """Retrieve all .jpg images from the given directory."""
+    return [f for f in os.listdir(IMAGE_DIR) if f.endswith('.jpg')]
 
 class Command(BaseCommand):
     help = 'Generate sample items with images, sizes, and colors'
@@ -15,31 +23,23 @@ class Command(BaseCommand):
         ratings = Rating.objects.all()
         colors = Color.objects.all()
         sizes = Size.objects.all()
-        images = [
-            'logo-2-300x124.png', 'products02.jpg', 'products03.jpg', 
-            'products04.jpg', 'products05.jpg', 'products07.jpg', 
-            'products08.jpg', 'products09.jpg', 'products10.jpg', 
-            'products11.jpg', 'products12.jpg', 'products13.jpg', 
-            'products14.jpg', 'products15.jpg', 'products16.jpg', 
-            'products17.jpg', 'products18.jpg', 'products19.jpg', 
-            'products20.jpg', 'products21.jpg', 'products22.jpg', 
-            'products23.jpg', 'products24.jpg', 'products25.jpg', 
-            'products26.jpg', 'products27.jpg', 'transparent-2-qr-1024x1024.png'
-        ]
+        images = get_all_images()
 
-        for i in range(100):
-            # Generate a unique product ID
-            product_id = f'prod-{uuid.uuid4()}'
+        if not images:
+            self.stdout.write(self.style.ERROR("No .jpg images found in the directory."))
+            return
+
+        for i in range(500):
+            product_id = f'prod-{uuid.uuid4().hex[:12]}'
             
-            # Create the item
             item = Item.objects.create(
                 title=f'Item {i + 1}',
-                image=f'images/{random.choice(images)}',  # Adjust the path if necessary
-                ratings=random.choice(ratings),
+                image=f'Products/{random.choice(images)}',  # Adjusting the path
+                ratings=random.choice(ratings) if ratings else None,
                 price=random.randint(10, 500),
-                number_of_items=random.randint(1, 100),  # Ensure this is set
+                number_of_items=random.randint(1, 100),
                 discount_price=random.randint(5, 400),
-                product_id=product_id,  # Use UUID to ensure uniqueness
+                product_id=product_id,
                 brand_name=f'Brand {random.choice(["A", "B", "C"])}',
                 category=random.choice(categories) if categories else None,
                 type=random.choice(item_types) if item_types else None,
@@ -48,27 +48,26 @@ class Command(BaseCommand):
                 is_bestselling=random.choice([True, False]),
             )
             
-            # Add extra images for the item
-            for _ in range(random.randint(1, 5)):  # Randomly add between 1 and 5 images
+            # Add extra images
+            for _ in range(random.randint(1, 5)):
                 ItemImage.objects.create(
                     item=item,
-                    image=f'item_images/{random.choice(images)}'  # Use the same pool of images
+                    image=f'Products/{random.choice(images)}'
                 )
 
-            # Add sizes for the item
-            for size in random.sample(list(sizes), random.randint(1, min(3, len(sizes)))):  # Randomly add 1 to 3 sizes
+            # Add sizes
+            for size in random.sample(list(sizes), min(3, len(sizes))):
                 ItemSize.objects.create(
                     item=item,
                     size=size,
-                    price_for_this_size=random.randint(10, 500)  # Random price for each size
+                    price_for_this_size=random.randint(10, 500)
                 )
 
-            # Add colors for the item
-            for color in random.sample(list(colors), random.randint(1, min(3, len(colors)))):  # Randomly add 1 to 3 colors
+            # Add colors
+            for color in random.sample(list(colors), min(3, len(colors))):
                 ItemColor.objects.create(
                     item=item,
                     color=color
                 )
 
-            print(f'Created {item.title} with product_id {item.product_id}, {item.images.count()} images, '
-                  f'{item.item_size.count()} sizes, and {item.item_color.count()} colors')
+            self.stdout.write(self.style.SUCCESS(f'Created {item.title} with product_id {item.product_id}'))

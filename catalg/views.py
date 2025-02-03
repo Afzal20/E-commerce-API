@@ -7,20 +7,21 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, DestroyAPIView
-from .models import Cart
-from .serializers import CartSerializer, AddToCartSerializer
+from .models import Cart, ContactMessage
+from .serializers import CartSerializer, AddToCartSerializer, ContactMessageSerializer
 from rest_framework import generics
 from .serializers import ProductSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import (
     Districts, Category, ItemType, Size, Rating, Color,
-    Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
+    Item, ItemImage, ItemSize, ItemColor, Cart, Order,
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 from .serializers import (
     AddToCartSerializer, DistrictsSerializer, CategorySerializer, ItemTypeSerializer,
     SizeSerializer, RatingSerializer, ColorSerializer, ItemSerializer,
     ItemImageSerializer, ItemSizeSerializer, ItemColorSerializer, CartSerializer,
-    OrderSerializer, OrderItemsSerializer, SliderSerializer, BillingAddressSerializer,
+    OrderSerializer, SliderSerializer, BillingAddressSerializer,
     PaymentSerializer, CouponSerializer, RefundSerializer
 )
 
@@ -69,9 +70,6 @@ class ItemSizeViewSet(viewsets.ModelViewSet):
 class ItemColorViewSet(viewsets.ModelViewSet):
     queryset = ItemColor.objects.all()
     serializer_class = ItemColorSerializer 
-class OrderItemsViewSet(viewsets.ModelViewSet):
-    queryset = OrderItems.objects.all()
-    serializer_class = OrderItemsSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -162,3 +160,41 @@ class UpdateCartQuantityView(APIView):
             cart_item.save()
             return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid quantity"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ContactMessageCreateView(generics.CreateAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Message sent successfully!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class OrderCreateView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        # Calculate total_price if not provided
+        if 'total_price' not in serializer.validated_data:
+            quantity = serializer.validated_data.get('quantity', 1)
+            price = serializer.validated_data.get('price', 0)
+            serializer.validated_data['total_price'] = quantity * price
+        serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+
+class OrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Order.objects.all().order_by('-created_at')
+        if self.request.user.is_staff:  # Admin can filter orders
+            user_id = self.request.query_params.get('user_id', None)
+            if user_id:
+                queryset = queryset.filter(user__id=user_id)
+        return queryset

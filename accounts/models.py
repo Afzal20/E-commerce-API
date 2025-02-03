@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import BaseUserManager
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 
 class CustomUserManager(BaseUserManager):
@@ -83,3 +84,20 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    upozila = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.first_name}'s Profile"
+

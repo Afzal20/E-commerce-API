@@ -1,6 +1,6 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework.exceptions import ValidationError
-from accounts.models import CustomUserModel
+from accounts.models import CustomUserModel, UserProfile
 from django.utils.translation import gettext as _
 from allauth.account.models import EmailAddress
 from rest_framework import serializers
@@ -23,3 +23,13 @@ class CustomRegisterSerializer(RegisterSerializer):
         return email
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__' 

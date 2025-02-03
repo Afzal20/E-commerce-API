@@ -1,7 +1,8 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 from .models import (
-    Districts, Category, ItemType, Size, Rating, Color,
-    Item, ItemImage, ItemSize, ItemColor, Cart, Order, OrderItems,
+    ContactMessage, Districts, Category, ItemType, Size, Rating, Color,
+    Item, ItemImage, ItemSize, ItemColor, Cart, Order,
     Slider, BillingAddress, Payment, Coupon, Refund
 )
 
@@ -72,17 +73,6 @@ class ItemSerializer(serializers.ModelSerializer):
             'description', 'is_featured', 'is_bestselling', 'images', 'item_size', 'item_color'
         ]
 
-
-
-# Order and Cart related Serializers
-
-class OrderItemsSerializer(serializers.ModelSerializer):
-    item = ItemSerializer()
-    
-    class Meta:
-        model = OrderItems
-        fields = ['id', 'item', 'item_size', 'item_color_code', 'quantity', 'order_status']
-
 class BillingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillingAddress
@@ -97,20 +87,6 @@ class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
         fields = ['id', 'code', 'amount']
-
-class OrderSerializer(serializers.ModelSerializer):
-    order_items = OrderItemsSerializer(many=True)
-    billing_address = BillingAddressSerializer()
-    payment = PaymentSerializer()
-    coupon = CouponSerializer()
-    
-    class Meta:
-        model = Order
-        fields = [
-            'id', 'user', 'order_items', 'ordered', 'start_date', 'ordered_date',
-            'district', 'Address', 'Apartment', 'billing_address', 'payment',
-            'coupon', 'being_delivered', 'received', 'refund_requested', 'refund_granted'
-        ]
 
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -179,3 +155,18 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['id', 'title', 'image', 'price', 'number_of_items', 'discount_price', 'product_id', 'brand_name', 'category', 'type', 'description', 'is_featured', 'is_bestselling']
+
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'.")])
+    transaction_id = serializers.CharField(required=False, allow_null=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'

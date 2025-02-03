@@ -114,6 +114,12 @@ celerybeat-schedule
 # SageMath parsed files
 *.sage.py
 
+catalg/migrations/*
+accounts/migrations/*
+
+!accounts/migrations/__init__.py
+!catalg/migrations/__init__.py
+
 # Environments
 .env
 .venv/

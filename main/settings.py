@@ -12,7 +12,6 @@ SECRET_KEY = 'django-insecure-b2x2y^vs%3h84pn36jzh!cwpn9(s!%of70$z2&x08fo1atc1u!
 DEBUG = True  # Set to False in production
 ALLOWED_HOSTS = ['*']
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,8 +23,8 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'dj_rest_auth', 
     'dj_rest_auth.registration',
-    'dj_rest_auth',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -115,9 +114,11 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 # Rest Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
-    )
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ),
 }
+
 
 # JWT settings
 SIMPLE_JWT = {
