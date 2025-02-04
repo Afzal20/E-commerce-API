@@ -25,6 +25,11 @@ from .serializers import (
     PaymentSerializer, CouponSerializer, RefundSerializer
 )
 
+from rest_framework import generics, viewsets
+from .models import Order, OrderItem
+from .serializers import OrderSerializer, OrderItemSerializer
+from django.contrib.auth import get_user_model
+
 # ModelViewSets for the basic CRUD operations
 
 class DistrictsViewSet(viewsets.ModelViewSet):
@@ -173,28 +178,28 @@ class ContactMessageCreateView(generics.CreateAPIView):
             return Response({"message": "Message sent successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-class OrderCreateView(generics.CreateAPIView):
+class OrderViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CartSerializer
+    
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Calculate total_price if not provided
-        if 'total_price' not in serializer.validated_data:
-            quantity = serializer.validated_data.get('quantity', 1)
-            price = serializer.validated_data.get('price', 0)
-            serializer.validated_data['total_price'] = quantity * price
-        serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+        serializer.save(user=self.request.user)
 
-class OrderListView(generics.ListAPIView):
+class OrderItemViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CartSerializer
+    
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+    permission_classes = [IsAuthenticated]
+
+class UserOrderList(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Order.objects.all().order_by('-created_at')
-        if self.request.user.is_staff:  # Admin can filter orders
-            user_id = self.request.query_params.get('user_id', None)
-            if user_id:
-                queryset = queryset.filter(user__id=user_id)
-        return queryset
+        return Order.objects.filter(user=self.request.user)

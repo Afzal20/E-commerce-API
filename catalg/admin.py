@@ -91,6 +91,22 @@ class RefundAdmin(admin.ModelAdmin):
 class SliderAdmin(admin.ModelAdmin):
     list_display = ('title',)
 
+from django.contrib import admin
+from .models import Order, OrderItem
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'first_name', 'last_name', 'created_at', 'total_price')
+    inlines = [OrderItemInline]
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('order', 'quantity', 'price', 'color', 'size')
+
 # Registering Models
 admin.site.register(Districts, DistrictsAdmin)
 admin.site.register(Category, CategoryAdmin)
@@ -109,4 +125,3 @@ admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refund, RefundAdmin)
 admin.site.register(ContactMessage)
-admin.site.register(Order)

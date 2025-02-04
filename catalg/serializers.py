@@ -1,7 +1,7 @@
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 from .models import (
-    ContactMessage, Districts, Category, ItemType, Size, Rating, Color,
+    ContactMessage, Districts, Category, ItemType, OrderItem, Size, Rating, Color,
     Item, ItemImage, ItemSize, ItemColor, Cart, Order,
     Slider, BillingAddress, Payment, Coupon, Refund
 )
@@ -54,8 +54,6 @@ class ItemColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemColor
         fields = ['id', 'color']
-
-# Main Item Serializer
 
 class ItemSerializer(serializers.ModelSerializer):
     images = ItemImageSerializer(many=True)  # Get all related images
@@ -163,10 +161,29 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = '__all__'
 
-class OrderSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField(validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'.")])
-    transaction_id = serializers.CharField(required=False, allow_null=True)
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'quantity', 'price', 'color', 'size', 'total_price']
 
+class OrderSerializer(serializers.ModelSerializer):
+    order_items = OrderItemSerializer(many=True)
+    
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'district', 'upozila', 'city', 'address', 
+                  'payment_method', 'phone_number_payment', 'transaction_id', 'created_at', 'updated_at', 'order_items', 'total_price']
+        
+    total_price = serializers.SerializerMethodField()
+
+    def get_total_price(self, obj):
+        return obj.total_price
+
+    def create(self, validated_data):
+        order_items_data = validated_data.pop('order_items', [])
+        order = Order.objects.create(**validated_data)
+        
+        for item_data in order_items_data:
+            OrderItem.objects.create(order=order, **item_data)
+        
+        return order

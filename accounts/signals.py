@@ -7,6 +7,4 @@ def set_default_email_flags(sender, instance, created, **kwargs):
     if created:
         if not instance.primary:
             instance.primary = True
-        if not instance.verified:
-            instance.verified = True
-        instance.save()
+            instance.save()

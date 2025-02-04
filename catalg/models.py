@@ -9,7 +9,7 @@ from django.core.validators import RegexValidator
     
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 class Districts(models.Model):
     title = models.CharField(max_length=100, unique=True)
@@ -166,15 +166,9 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.email}"
 
+
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    product_id = models.CharField(max_length=255)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    color = models.CharField(max_length=50, blank=False, null=False)
-    size = models.CharField(max_length=50, blank=False, null=False)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='orders')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20, validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'.")])
@@ -184,7 +178,7 @@ class Order(models.Model):
     address = models.TextField()
     
     payment_method = models.CharField(max_length=50)
-    phone_number_pament = models.CharField(max_length=20, blank=False, null=False)
+    phone_number_payment = models.CharField(max_length=20, blank=False, null=False)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -192,3 +186,22 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - {self.first_name} {self.last_name}"
+
+    @property
+    def total_price(self):
+        return sum(item.total_price for item in self.order_items.all()) + 80  # Assuming 80 is the delivery charge
+    
+class OrderItem(models.Model):
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='order_items')
+    product = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    color = models.CharField(max_length=50, blank=False, null=False)
+    size = models.CharField(max_length=50, blank=False, null=False)
+
+    @property
+    def total_price(self):
+        return self.price * self.quantity
+
+    def __str__(self):
+        return f"{self.product} in Order {self.order.id}"
