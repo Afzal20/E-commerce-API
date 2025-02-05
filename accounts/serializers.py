@@ -33,3 +33,8 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__' 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUserModel
+        fields = ['id', 'email', 'first_name', 'last_name', 'is_active', 'date_joined', 'last_login', 'verified']

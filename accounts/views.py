@@ -8,9 +8,11 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework import viewsets, permissions
 
-from .models import UserProfile
-from .serializers import UserProfileSerializer, ProfileUpdateSerializer
+
+from .models import CustomUserModel, UserProfile
+from .serializers import UserProfileSerializer, ProfileUpdateSerializer, UserSerializer
 
 class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
     adapter_class = GoogleOAuth2Adapter
@@ -59,3 +61,15 @@ class ProfileUpdateView(APIView):
 
         except UserProfile.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `retrieve` actions for the users.
+    """
+    queryset = CustomUserModel.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUserModel.objects.filter(id=self.request.user.id)

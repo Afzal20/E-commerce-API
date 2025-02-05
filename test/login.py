@@ -8,7 +8,7 @@ headers = {
 data = {
     "username": "",  
     "email": "afzalhossen2019@gmail.com", 
-    "password": "!@#$%^&*"  
+    "password": "NewPassword123!"  
 }
 
 response = requests.post(url, headers=headers, json=data)

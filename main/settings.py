@@ -10,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Core settings
 SECRET_KEY = 'django-insecure-b2x2y^vs%3h84pn36jzh!cwpn9(s!%of70$z2&x08fo1atc1u!'
 DEBUG = True  # Set to False in production
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -94,6 +95,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'your-react-app/build/static'),
+# ]
+
 STATIC_ROOT = BASE_DIR / 'build/staticroot'
 MEDIA_ROOT = BASE_DIR / 'media'
 

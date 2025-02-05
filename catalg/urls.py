@@ -1,5 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
+from accounts import views
 from .views import (
     AddToCartView, CartListView, ContactMessageCreateView, DistrictsViewSet, CategoryViewSet, 
     ItemTypeViewSet, ProductDetailView, RemoveFromCartView,SizeViewSet, RatingViewSet, 
@@ -26,6 +28,7 @@ router.register(r'payments', PaymentViewSet)
 router.register(r'coupons', CouponViewSet)
 router.register(r'refunds', RefundViewSet)
 router.register(r'order-items', OrderItemViewSet)
+router.register(r'users', views.UserViewSet)
 
 # Custom route for fetching a single product by product_id
 urlpatterns = [
