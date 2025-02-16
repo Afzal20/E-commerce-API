@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Core settings
 SECRET_KEY = 'django-insecure-b2x2y^vs%3h84pn36jzh!cwpn9(s!%of70$z2&x08fo1atc1u!'
-DEBUG = True  # Set to False in production
+DEBUG = config('DEBUG')  # Set to False in production
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'catalg',
     'accounts',
 ]
+
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
@@ -91,17 +93,19 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static and media files
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Collect static files here
 # STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'your-react-app/build/static'),
+#     BASE_DIR / 'build/static',  # Point to React's static files
 # ]
 
-STATIC_ROOT = BASE_DIR / 'build/staticroot'
+
+# Media files
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -135,6 +139,7 @@ SIMPLE_JWT = {
 # Rest Auth settings
 REST_AUTH = {
     'USE_JWT': True,
+    'REST_USE_JWT' : True,
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
     'JWT_AUTH_HTTPONLY': True,
@@ -144,9 +149,25 @@ REST_AUTH = {
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost',
+    'http://127.0.0.1',
 ]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+]
+
+
+# settings.py
+
+
+
+# settings.py
+
+CSRF_COOKIE_SECURE = False  # Set to True in production (HTTPS only)
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access the CSRF token
+CSRF_COOKIE_SAMESITE = 'Lax'  # Set to 'Strict' or 'None' as needed
 
 CORS_ALLOW_CREDENTIALS = True
 

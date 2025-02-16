@@ -9,21 +9,19 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import viewsets, permissions
+from django.shortcuts import redirect
+from allauth.account.views import PasswordResetFromKeyView
 
 
 from .models import CustomUserModel, UserProfile
 from .serializers import UserProfileSerializer, ProfileUpdateSerializer, UserSerializer
 
-class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
-    adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://localhost:3000/"
-    client_class = OAuth2Client
-
 def email_confirmation(request, key):
     return redirect(f"http://localhost:3000/dj-rest-auth/registration/account-confirm-email/{key}")
 
-def reset_password_confirm(request, uid, token):
-    return redirect(f"http://localhost:3000/reset/password/confirm/{uid}/{token}")
+def reset_password_confirm(request, uidb64, token):
+    # Redirect to the default Allauth view or handle the logic here
+    return PasswordResetFromKeyView.as_view()(request, uidb64=uidb64, token=token)
 
 # For Create Profile
 class UserProfileCreateView(generics.CreateAPIView):

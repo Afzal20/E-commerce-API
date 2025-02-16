@@ -1,10 +1,9 @@
-আসসালামু আলাইকুম, {{ user.first_name }} sir,
+{% extends "account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
 
-আপনার অ্যাকাউন্ট সক্রিয় করার জন্য অনুগ্রহ করে নিচের লিঙ্কে ক্লিক করুন:
-{{ activate_url }}
+{% block content %}{% autoescape off %}{% user_display user as user_display %}{% blocktranslate with site_name=current_site.name site_domain=current_site.domain %}You're receiving this email because user {{ user_display }} has given your email address to register an account on {{ site_domain }}.{% endblocktranslate %}
 
-যদি কোনো সমস্যার সম্মুখীন হন, দয়া করে আমাদের সহায়তা টিমের সাথে যোগাযোগ করুন।
-Phone: 017 ******** 
+{% if code %}{% blocktranslate %}Your email verification code is listed below. Please enter it in your open browser window.{% endblocktranslate %}
 
-শুভেচ্ছান্তে,  
-bindu-britto.com
+{{ code }}{% else %}{% blocktranslate %}To confirm this is correct, go to {{ activate_url }}{% endblocktranslate %}{% endif %}{% endautoescape %}{% endblock content %}

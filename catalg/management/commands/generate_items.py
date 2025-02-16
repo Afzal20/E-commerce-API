@@ -29,7 +29,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("No .jpg images found in the directory."))
             return
 
-        for i in range(500):
+        for i in range(50):
             product_id = f'prod-{uuid.uuid4().hex[:12]}'
             
             item = Item.objects.create(
