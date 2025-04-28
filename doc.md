@@ -6,7 +6,7 @@ This API provides access to the e-commerce platform, allowing you to manage prod
 ### Base URL:  
 `https://http://localhost:8000/api/`
 
----
+--- 
 
 ## Endpoints
 

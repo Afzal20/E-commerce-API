@@ -19,11 +19,9 @@ from .serializers import UserProfileSerializer, ProfileUpdateSerializer, UserSer
 def email_confirmation(request, key):
     return redirect(f"http://localhost:3000/dj-rest-auth/registration/account-confirm-email/{key}")
 
-def reset_password_confirm(request, uidb64, token):
-    # Redirect to the default Allauth view or handle the logic here
-    return PasswordResetFromKeyView.as_view()(request, uidb64=uidb64, token=token)
+def reset_password_confirm(request, uidb36, key):
+    return PasswordResetFromKeyView.as_view()(request, uidb36=uidb36, key=key)
 
-# For Create Profile
 class UserProfileCreateView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer

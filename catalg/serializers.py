@@ -165,25 +165,32 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['id', 'product', 'quantity', 'price', 'color', 'size', 'total_price']
-
+        
 class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True)
     
     class Meta:
         model = Order
-        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'district', 'upozila', 'city', 'address', 
-                  'payment_method', 'phone_number_payment', 'transaction_id', 'created_at', 'updated_at', 'order_items', 'total_price']
-        
+        fields = [
+            'id', 'user', 'first_name', 'last_name', 'phone_number', 'district', 'upozila', 'city', 'address', 
+            'payment_method', 'phone_number_payment', 'transaction_id', 'created_at', 'updated_at', 'order_items', 'total_price'
+        ]
+        read_only_fields = ['user', 'total_price']  # Prevent users from setting 'user' manually
+
     total_price = serializers.SerializerMethodField()
 
     def get_total_price(self, obj):
         return obj.total_price
 
     def create(self, validated_data):
-        order_items_data = validated_data.pop('order_items', [])
-        order = Order.objects.create(**validated_data)
+        request = self.context.get("request")
+        if request and request.user:
+            validated_data["user"] = request.user
         
+        order_items_data = validated_data.pop("order_items", [])
+        order = Order.objects.create(**validated_data)
+
         for item_data in order_items_data:
             OrderItem.objects.create(order=order, **item_data)
-        
+
         return order

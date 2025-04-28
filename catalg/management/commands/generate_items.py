@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from catalg.models import Item, Category, ItemType, Rating, Color, ItemImage, ItemSize, Size, ItemColor
 
 # Define the image directory
-IMAGE_DIR = r"E:\react-ecommerce\src\assets\images\Products"
+IMAGE_DIR = r"./media/Products"
 
 def get_all_images():
     """Retrieve all .jpg images from the given directory."""

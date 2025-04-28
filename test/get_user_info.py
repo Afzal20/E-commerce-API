@@ -4,7 +4,7 @@ import requests
 url = "http://localhost:8000/api/users/"
 
 # Assuming you already have an access token from login
-access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjo0ODkyMzU3Mjc1LCJpYXQiOjE3Mzg3NTcyNzUsImp0aSI6Ijg2M2VjZTc2ZjdmZDQ1MTQ5NTIxMWJlMTVhMmU1Y2E3IiwidXNlcl9pZCI6Mn0.Hgsk1SxouieCnOo9fG1EJsQUGM7qqjuTdfu_bAWhScw"
+access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjo0ODkzODAwMzIzLCJpYXQiOjE3NDAyMDAzMjMsImp0aSI6ImI1ZjRjYTE3NWI5MjRkYTI5NTY2MTgyZTA4NmNmYWFmIiwidXNlcl9pZCI6M30.ZxXjD7FnUHAtNIDnixsW7LpUvRx34NC1Pl89l90Lx-8"
 
 # Headers for the request including the access token
 headers = {

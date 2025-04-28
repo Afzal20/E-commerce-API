@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -29,6 +30,11 @@ from rest_framework import generics, viewsets
 from .models import Order, OrderItem
 from .serializers import OrderSerializer, OrderItemSerializer
 from django.contrib.auth import get_user_model
+
+from django.http import HttpResponse, Http404
+import os
+import mimetypes
+from django.conf import settings
 
 # ModelViewSets for the basic CRUD operations
 
@@ -77,8 +83,12 @@ class ItemColorViewSet(viewsets.ModelViewSet):
     serializer_class = ItemColorSerializer 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = OrderSerializer
+    queryset = Order.objects.all()  # <-- Add this line
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
 class SliderViewSet(viewsets.ModelViewSet):
     queryset = Slider.objects.all()
@@ -177,17 +187,6 @@ class ContactMessageCreateView(generics.CreateAPIView):
             serializer.save()
             return Response({"message": "Message sent successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CartSerializer
-    
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -203,3 +202,20 @@ class UserOrderList(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
+    
+
+def serve_media(request, path):
+    media_path = os.path.join(settings.MEDIA_ROOT, path)
+
+    if os.path.exists(media_path):
+        with open(media_path, 'rb') as f:
+            mime_type, _ = mimetypes.guess_type(media_path)
+            response = HttpResponse(f.read(), content_type=mime_type or 'application/octet-stream')
+            response["Content-Disposition"] = f'inline; filename="{os.path.basename(media_path)}"'
+            return response
+    else:
+        raise Http404("Media file not found")
+    
+
+def index(request):
+    return render(request, 'index.html')

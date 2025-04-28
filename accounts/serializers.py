@@ -16,11 +16,11 @@ class CustomEmailAddressSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class CustomRegisterSerializer(RegisterSerializer):
-    def validate_email(self, email):
-        if CustomUserModel.objects.filter(email=email).exists():
-            raise ValidationError(_("A user with this email already exists"))
-        return email
+# class CustomRegisterSerializer(RegisterSerializer):
+#     def validate_email(self, email):
+#         if CustomUserModel.objects.filter(email=email).exists():
+#             raise ValidationError(_("A user with this email already exists"))
+#         return email
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -38,3 +38,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUserModel
         fields = ['id', 'email', 'first_name', 'last_name', 'is_active', 'date_joined', 'last_login', 'verified']
+
+
+from dj_rest_auth.registration.serializers import RegisterSerializer
+from rest_framework import serializers
+
+class CustomRegisterSerializer(RegisterSerializer):
+    username = None  # ← this tells the serializer to ignore username
+
+    def validate_email(self, email):
+        if CustomUserModel.objects.filter(email=email).exists():
+            raise serializers.ValidationError("A user with this email already exists")
+        return email
+
+    def get_cleaned_data(self):
+        return {
+            'email': self.validated_data.get('email', ''),
+            'password1': self.validated_data.get('password1', ''),
+            'first_name': self.validated_data.get('first_name', ''),
+            'last_name': self.validated_data.get('last_name', ''),
+        }
